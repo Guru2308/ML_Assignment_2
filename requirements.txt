@@ -3,7 +3,7 @@ scikit-learn
 xgboost
 kagglehub
 numpy
-streamlit
+streamlit>=1.30.0
 matplotlib
 seaborn
 watchdog
