@@ -22,7 +22,7 @@ from model import (
 # Page Config
 # -------------------------
 st.set_page_config(page_title="ML Assignment 2", layout="wide")
-st.title("Machine Learning Classification App")
+st.title("Machine Learning Assignment 2")
 st.markdown("### Name: Chatheriyan T")
 st.markdown("### ID: 2025aa05339")
 
