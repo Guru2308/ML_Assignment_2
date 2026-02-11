@@ -1,5 +1,6 @@
 import streamlit as st
 import pandas as pd
+import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 
@@ -32,21 +33,56 @@ uploaded_file = st.file_uploader("Upload CSV file", type=["csv"])
 
 if uploaded_file is not None:
     df = pd.read_csv(uploaded_file)
+    
     st.subheader("Dataset Preview")
     st.write(df.head())
+    
+    # Drop ID column if present (usually first column with name containing 'id')
+    if 'id' in df.columns.str.lower():
+        id_col = [col for col in df.columns if 'id' in col.lower()][0]
+        df = df.drop(columns=[id_col])
+        st.info(f"Dropped ID column: `{id_col}`")
 
-    # Mapping diagnosis if present (for consistency with notebook)
-    if 'diagnosis' in df.columns and df['diagnosis'].dtype == 'object':
-        df['diagnosis'] = df['diagnosis'].map({'M': 1, 'B': 0})
+    # Mapping diagnosis if present (for breast cancer dataset compatibility)
+    target_col = None
+    if 'diagnosis' in df.columns:
+        target_col = 'diagnosis'
+        if df['diagnosis'].dtype == 'object':
+            df['diagnosis'] = df['diagnosis'].map({'M': 1, 'B': 0})
+            st.success("Mapped diagnosis: M → 1 (Malignant), B → 0 (Benign)")
+    
+    # Separate features and target
+    if target_col:
+        y = df[target_col]
+        X = df.drop(columns=[target_col])
+        st.info(f"Using `{target_col}` as target column")
+    else:
+        # Assume last column is target if no diagnosis column
+        X = df.iloc[:, :-1]
+        y = df.iloc[:, -1]
+        st.warning("No 'diagnosis' column found - assuming last column is target")
 
-    # Assume last column is target
-    X = df.iloc[:, :-1]
-    y = df.iloc[:, -1]
+    # Check if stratification is appropriate (classification with reasonable class distribution)
+    n_unique_classes = y.nunique()
+    is_classification = n_unique_classes < 20  # Heuristic: less than 20 unique values suggests classification
+    
+    # Check if stratification is possible (each class has at least 2 samples)
+    can_stratify = False
+    if is_classification:
+        min_class_count = y.value_counts().min()
+        can_stratify = min_class_count >= 2
 
     # Train-Test Split
-    X_train, X_test, y_train, y_test = train_test_split(
-        X, y, test_size=0.2, random_state=42, stratify=y
-    )
+    if can_stratify:
+        X_train, X_test, y_train, y_test = train_test_split(
+            X, y, test_size=0.2, random_state=42, stratify=y
+        )
+        st.info(f"Using stratified split with {n_unique_classes} classes")
+    else:
+        X_train, X_test, y_train, y_test = train_test_split(
+            X, y, test_size=0.2, random_state=42
+        )
+        st.warning(f"Using random split (stratification not possible, {n_unique_classes} unique values)")
 
     # Scaling
     scaler = StandardScaler()

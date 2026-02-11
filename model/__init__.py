@@ -28,7 +28,7 @@ from .random_forest import (
     predict_random_forest,
     evaluate_random_forest
 )
-from .xgboost import (
+from .xgboost_classifier import (
     train_xgboost,
     predict_xgboost,
     evaluate_xgboost
