@@ -34,7 +34,11 @@ from .xgboost import (
     evaluate_xgboost
 )
 
+from .evaluation import evaluate_model
+
 __all__ = [
+    # common evaluation
+    'evaluate_model',
     # Logistic Regression
     'train_logistic_regression',
     'predict_logistic_regression',
