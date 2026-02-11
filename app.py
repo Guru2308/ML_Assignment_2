@@ -41,7 +41,6 @@ if uploaded_file is not None:
     if 'id' in df.columns.str.lower():
         id_col = [col for col in df.columns if 'id' in col.lower()][0]
         df = df.drop(columns=[id_col])
-        st.info(f"Dropped ID column: `{id_col}`")
 
     # Mapping diagnosis if present (for breast cancer dataset compatibility)
     target_col = None
@@ -55,7 +54,6 @@ if uploaded_file is not None:
     if target_col:
         y = df[target_col]
         X = df.drop(columns=[target_col])
-        st.info(f"Using `{target_col}` as target column")
     else:
         # Assume last column is target if no diagnosis column
         X = df.iloc[:, :-1]
@@ -77,7 +75,6 @@ if uploaded_file is not None:
         X_train, X_test, y_train, y_test = train_test_split(
             X, y, test_size=0.2, random_state=42, stratify=y
         )
-        st.info(f"Using stratified split with {n_unique_classes} classes")
     else:
         X_train, X_test, y_train, y_test = train_test_split(
             X, y, test_size=0.2, random_state=42
@@ -154,8 +151,21 @@ if uploaded_file is not None:
     # Classification Report
     # -------------------------
     st.subheader("Classification Report")
-    report = classification_report(y_test, y_pred)
-    st.text(report)
+    
+    # Get classification report as dictionary
+    report_dict = classification_report(y_test, y_pred, output_dict=True)
+    
+    # Convert to DataFrame for better visualization
+    report_df = pd.DataFrame(report_dict).transpose()
+    
+    # Format the DataFrame
+    report_df = report_df.round(2)
+    
+    # Display as table with styling
+    st.dataframe(
+        report_df.style.format("{:.2f}"),
+        use_container_width=True
+    )
 
 else:
     st.info("Please upload a CSV file to begin. You can find a sample dataset in the 'data' directory.")

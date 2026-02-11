@@ -6,3 +6,4 @@ numpy
 streamlit
 matplotlib
 seaborn
+watchdog
