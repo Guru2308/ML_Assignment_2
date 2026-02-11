@@ -23,6 +23,8 @@ from model import (
 # -------------------------
 st.set_page_config(page_title="ML Assignment 2", layout="wide")
 st.title("Machine Learning Classification App")
+st.markdown("### Name: Chatheriyan T")
+st.markdown("### ID: 2025aa05339")
 
 st.markdown("Upload a test dataset and select a model to evaluate.")
 
